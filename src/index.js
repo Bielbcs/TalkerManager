@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
 const { readTalkerFile } = require('./utils/fsUtils');
 
 const app = express();
@@ -29,4 +30,10 @@ app.get('/talker/:id', async (req, res) => {
 
   return filteredTalker ? res.status(HTTP_OK_STATUS).json(filteredTalker) 
     : res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+});
+
+app.post('/login', async (req, res) => {
+  const token = crypto.randomBytes(8).toString('hex');
+
+  return res.status(HTTP_OK_STATUS).json({ token });
 });
