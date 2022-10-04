@@ -29,10 +29,31 @@ app.get('/talker/:id', async (req, res) => {
   const filteredTalker = talkers.find((talker) => talker.id === Number(id));
 
   return filteredTalker ? res.status(HTTP_OK_STATUS).json(filteredTalker) 
-    : res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    : res.status(404).send({ message: 'Pessoa palestrante não encontrada' });
 });
 
-app.post('/login', async (req, res) => {
+const emailValidation = (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).send({ message: 'O campo "email" é obrigatório' });
+
+  const re = /\S+@\S+\.\S+/;
+  if (!re.test(email)) {
+    return res.status(400).send({ 
+      message: 'O "email" deve ter o formato "email@email.com"' }); 
+  }
+  next();
+};
+
+const passwordValidation = (req, res, next) => {
+  const { password } = req.body;
+  if (!password) res.status(400).send({ message: 'O campo "password" é obrigatório' });
+  if (password.length < 6) { 
+    return res.status(400).send({ message: 'O "password" deve ter pelo menos 6 caracteres' }); 
+  }
+  next();
+};
+
+app.post('/login', emailValidation, passwordValidation, async (req, res) => {
   const token = crypto.randomBytes(8).toString('hex');
 
   return res.status(HTTP_OK_STATUS).json({ token });
