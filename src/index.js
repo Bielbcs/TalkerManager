@@ -21,3 +21,12 @@ app.get('/talker', async (req, res) => {
   const talkers = await readTalkerFile();
   res.status(HTTP_OK_STATUS).json(talkers);
 });
+
+app.get('/talker/:id', async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readTalkerFile();
+  const filteredTalker = talkers.find((talker) => talker.id === Number(id));
+
+  return filteredTalker ? res.status(HTTP_OK_STATUS).json(filteredTalker) 
+    : res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+});
