@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const { readTalkerFile, writeTalkerFile, updateTalkerFile } = require('./utils/fsUtils');
+const { readTalkerFile, writeTalkerFile, 
+  updateTalkerFile, deleteTalkerFile } = require('./utils/fsUtils');
 
 const app = express();
 app.use(bodyParser.json());
@@ -123,7 +124,13 @@ app.put('/talker/:id', tokenValidation, nameValidation,
 ageValidation, talkValidation, rateValidation, async (req, res) => {
   const { id } = req.params;
 
-  const teste = await updateTalkerFile(id, req.body);
+  const editedTalkers = await updateTalkerFile(id, req.body);
 
-  res.status(200).json(teste[teste.length - 1]);
+  res.status(200).json(editedTalkers[editedTalkers.length - 1]);
+});
+
+app.delete('/talker/:id', tokenValidation, async (req, res) => {
+  const { id } = req.params;
+  await deleteTalkerFile(id);
+  res.status(204).end();
 });
