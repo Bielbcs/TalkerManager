@@ -58,9 +58,19 @@ const deleteTalkerFile = async (id) => {
   }
 };
 
+const searchTalkerFile = async (term) => {
+  const oldTalkers = await readTalkerFile();
+
+  const filteredArray = oldTalkers
+    .filter(({ name }) => name.toLowerCase().includes(term.toLowerCase()));
+
+  return filteredArray;
+};
+
 module.exports = {
   readTalkerFile,
   writeTalkerFile,
   updateTalkerFile,
   deleteTalkerFile,
+  searchTalkerFile,
 };

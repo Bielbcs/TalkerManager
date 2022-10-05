@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const { readTalkerFile, writeTalkerFile, 
-  updateTalkerFile, deleteTalkerFile } = require('./utils/fsUtils');
+  updateTalkerFile, deleteTalkerFile, searchTalkerFile } = require('./utils/fsUtils');
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,6 +17,20 @@ app.get('/', (_request, response) => {
 
 app.listen(PORT, () => {
   console.log('Online');
+});
+
+const tokenValidation = (req, res, next) => {
+  const { authorization } = req.headers;
+  if (!authorization) return res.status(401).send({ message: 'Token não encontrado' });
+  if (authorization.length < 16) return res.status(401).send({ message: 'Token inválido' });
+  next();
+};
+
+app.get('/talker/search', tokenValidation, async (req, res) => {
+  const { q } = req.query;
+  const result = await searchTalkerFile(q);
+  console.log(result);
+  res.status(HTTP_OK_STATUS).json(result);
 });
 
 app.get('/talker', async (req, res) => {
@@ -59,13 +73,6 @@ app.post('/login', emailValidation, passwordValidation, (req, res) => {
 
   return res.status(HTTP_OK_STATUS).json({ token });
 });
-
-const tokenValidation = (req, res, next) => {
-  const { authorization } = req.headers;
-  if (!authorization) return res.status(401).send({ message: 'Token não encontrado' });
-  if (authorization.length < 16) return res.status(401).send({ message: 'Token inválido' });
-  next();
-};
 
 const nameValidation = (req, res, next) => {
   const { name } = req.body;
