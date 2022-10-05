@@ -20,7 +20,25 @@ const writeTalkerFile = async (newTalker) => {
     const newArray = JSON.stringify([...oldTalkers, newObject]);
 
     await fs.writeFile('src/talker.json', newArray);
-    console.log('Arquivo escrito com sucesso!');
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+const updateTalkerFile = async (id, newTalker) => {
+  try {
+    const oldTalkers = await readTalkerFile();
+
+    const index = oldTalkers.findIndex((talker) => talker.id === Number(id));
+    const toEdit = oldTalkers.find((talker) => talker.id === Number(id));
+
+    const editedTalker = { ...toEdit, ...newTalker };
+
+    oldTalkers.splice(index, 1, editedTalker);
+
+    await fs.writeFile('src/talker.json', JSON.stringify(oldTalkers));
+    
+    return oldTalkers;
   } catch (error) {
     console.error(error.message);
   }
@@ -29,4 +47,5 @@ const writeTalkerFile = async (newTalker) => {
 module.exports = {
   readTalkerFile,
   writeTalkerFile,
+  updateTalkerFile,
 };

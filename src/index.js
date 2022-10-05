@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const { readTalkerFile, writeTalkerFile } = require('./utils/fsUtils');
+const { readTalkerFile, writeTalkerFile, updateTalkerFile } = require('./utils/fsUtils');
 
 const app = express();
 app.use(bodyParser.json());
@@ -102,7 +102,7 @@ const talkValidation = (req, res, next) => {
 
 const rateValidation = (req, res, next) => {
   const { talk: { rate } } = req.body;
-  if (!rate) return res.status(400).send({ message: 'O campo "rate" é obrigatório' });
+  if (rate === undefined) return res.status(400).send({ message: 'O campo "rate" é obrigatório' });
   if (rate < 1 || rate > 5) {
     console.log('entrou');
     return res.status(400).send({ message: 'O campo "rate" deve ser um inteiro de 1 à 5' });
@@ -116,5 +116,14 @@ ageValidation, talkValidation, rateValidation, async (req, res) => {
 
   const updatedTalkers = await readTalkerFile();
   
-  res.status(201).send(updatedTalkers[updatedTalkers.length - 1]);
+  res.status(201).json(updatedTalkers[updatedTalkers.length - 1]);
+});
+
+app.put('/talker/:id', tokenValidation, nameValidation, 
+ageValidation, talkValidation, rateValidation, async (req, res) => {
+  const { id } = req.params;
+
+  const teste = await updateTalkerFile(id, req.body);
+
+  res.status(200).json(teste[teste.length - 1]);
 });
